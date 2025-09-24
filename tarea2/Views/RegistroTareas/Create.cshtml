@@ -1,0 +1,49 @@
+﻿@model tarea2.Models.TareaRegistrada
+
+@{
+    ViewBag.Title = "Registrar nueva tarea";
+}
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success" role="alert" aria-live="assertive">
+        @TempData["MensajeExito"]
+    </div>
+}
+
+<h2>Registrar nueva tarea</h2>
+
+<!-- Formulario principal con atributos accesibles -->
+@using (Html.BeginForm("Create", "RegistroTareas", FormMethod.Post, new { @id = "formRegistroTarea", @role = "form", @aria_label = "Formulario de registro de tareas" }))
+{
+    <div class="form-group">
+        @Html.LabelFor(model => model.Titulo, htmlAttributes: new { @class = "control-label", @aria_label = "Título de la tarea" })
+        @Html.TextBoxFor(model => model.Titulo, new { @class = "form-control", @aria_required = "true", @aria_describedby = "ayudaTitulo" })
+        <small id="ayudaTitulo" class="form-text text-muted">Ingrese un título breve y descriptivo.</small>
+        @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Descripcion, htmlAttributes: new { @class = "control-label", @aria_label = "Descripción de la tarea" })
+        @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control", rows = 4, @aria_required = "true", @aria_describedby = "ayudaDescripcion" })
+        <small id="ayudaDescripcion" class="form-text text-muted">Describa los detalles de la tarea.</small>
+        @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.FechaVencimiento, htmlAttributes: new { @class = "control-label", @aria_label = "Fecha de vencimiento" })
+        @Html.TextBoxFor(model => model.FechaVencimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", @aria_required = "true" })
+        @Html.ValidationMessageFor(model => model.FechaVencimiento, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Prioridad, htmlAttributes: new { @class = "control-label", @aria_label = "Nivel de prioridad" })
+        @Html.DropDownListFor(model => model.Prioridad, new SelectList(new[] { "Alta", "Media", "Baja" }), "-- Seleccione prioridad --", new { @class = "form-control", @aria_required = "true" })
+        @Html.ValidationMessageFor(model => model.Prioridad, "", new { @class = "text-danger" })
+    </div>
+
+    <!-- Botón de envío accesible -->
+    <button type="submit" class="btn btn-primary" aria-label="Guardar tarea">Guardar tarea</button>
+}
+@section scripts {
+    <script src="~/Scripts/registroTareas.js"></script>
+}

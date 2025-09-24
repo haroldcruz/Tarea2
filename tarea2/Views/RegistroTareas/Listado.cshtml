@@ -1,0 +1,42 @@
+﻿@model List<tarea2.Models.TareaRegistrada>
+
+@{
+    ViewBag.Title = "Listado de tareas registradas";
+}
+
+<h2>Listado de tareas registradas</h2>
+
+<!-- Tabla accesible con encabezados semánticos -->
+<table class="table table-bordered table-striped" role="table" aria-label="Listado de tareas">
+    <thead>
+        <tr>
+            <th scope="col">Título</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Fecha de vencimiento</th>
+            <th scope="col">Prioridad</th>
+            <th scope="col">Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @* Verificamos si hay tareas en el modelo *@
+        @if (Model != null && Model.Any())
+        {
+            foreach (var tarea in Model)
+            {
+                <tr>
+                    <td>@tarea.Titulo</td>
+                    <td>@tarea.Descripcion</td>
+                    <td>@tarea.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+                    <td>@tarea.Prioridad</td>
+                    <td>@tarea.Estado</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center">No hay tareas registradas.</td>
+            </tr>
+        }
+    </tbody>
+</table>
