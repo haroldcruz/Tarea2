@@ -167,6 +167,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\RegistroTareas\Create.cshtml" />
     <Content Include="Views\RegistroTareas\Listado.cshtml" />
+    <Content Include="Views\RegistroTareas\Editar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

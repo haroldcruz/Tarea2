@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using tarea2.Models;
@@ -8,15 +9,16 @@ using tarea2.Models;
 namespace tarea2.Controllers
 {
     /// <summary>
-    /// Controlador que gestiona el registro de tareas y su almacenamiento en archivo JSON.
+    /// Controlador que gestiona el registro, edición y visualización de tareas.
+    /// Las tareas se almacenan en un archivo JSON ubicado en App_Data.
     /// </summary>
     public class RegistroTareasController : Controller
     {
-        // Ruta del archivo JSON donde se guardan las tareas
+        // Ruta física del archivo JSON donde se guardan las tareas
         private readonly string rutaArchivo = System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/tareas_registradas.json");
 
         /// <summary>
-        /// Muestra el formulario de registro de tareas.
+        /// Muestra el formulario para registrar una nueva tarea.
         /// </summary>
         public ActionResult Create()
         {
@@ -24,69 +26,127 @@ namespace tarea2.Controllers
         }
 
         /// <summary>
-        /// Recibe los datos del formulario, valida el modelo y guarda la tarea en archivo JSON.
+        /// Procesa el envío del formulario de registro.
+        /// Valida el modelo y guarda la tarea en el archivo JSON.
+        /// Devuelve respuesta JSON para integración con Ajax.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(TareaRegistrada tarea)
+        public JsonResult Create(TareaRegistrada tarea)
         {
-            // Validación del modelo según DataAnnotations
             if (!ModelState.IsValid)
             {
-                // Si hay errores, se devuelve la vista con mensajes de validación
-                return View(tarea);
+                var errores = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Json(new { exito = false, errores });
             }
 
             try
             {
-                // Lista de tareas existente (si el archivo ya tiene contenido)
                 var tareasExistentes = new List<TareaRegistrada>();
-
                 if (System.IO.File.Exists(rutaArchivo))
                 {
                     var contenido = System.IO.File.ReadAllText(rutaArchivo);
                     tareasExistentes = JsonConvert.DeserializeObject<List<TareaRegistrada>>(contenido) ?? new List<TareaRegistrada>();
                 }
 
-                // Agregar la nueva tarea a la lista
                 tareasExistentes.Add(tarea);
 
-                // Guardar la lista actualizada en el archivo JSON
                 var jsonActualizado = JsonConvert.SerializeObject(tareasExistentes, Formatting.Indented);
                 System.IO.File.WriteAllText(rutaArchivo, jsonActualizado);
 
-                // Redirigir a una vista de confirmación o mostrar mensaje institucional
-                TempData["MensajeExito"] = "La tarea fue registrada correctamente.";
-                return RedirectToAction("Create");
+                return Json(new { exito = true });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Manejo de errores con retroalimentación institucional
-                ModelState.AddModelError("", "Ocurrió un error al guardar la tarea. Intente nuevamente o contacte al soporte.");
-                return View(tarea);
+                return Json(new
+                {
+                    exito = false,
+                    errores = new[] {
+                        "Ocurrió un error al guardar la tarea. Intente nuevamente o contacte al soporte técnico."
+                    }
+                });
             }
         }
+
         /// <summary>
-        /// Muestra la lista de tareas registradas, leídas desde el archivo JSON.
+        /// Muestra la lista completa de tareas registradas.
         /// </summary>
         public ActionResult Listado()
         {
-            // Crear una lista vacía para almacenar las tareas
             var tareas = new List<TareaRegistrada>();
 
-            // Verificar si el archivo JSON existe
             if (System.IO.File.Exists(rutaArchivo))
             {
-                // Leer el contenido del archivo
                 var contenido = System.IO.File.ReadAllText(rutaArchivo);
-
-                // Convertir el contenido JSON en una lista de objetos TareaRegistrada
                 tareas = JsonConvert.DeserializeObject<List<TareaRegistrada>>(contenido) ?? new List<TareaRegistrada>();
             }
 
-            // Enviar la lista de tareas a la vista
             return View(tareas);
         }
 
+        /// <summary>
+        /// Muestra el formulario de edición para una tarea existente.
+        /// Se identifica por el título como clave temporal.
+        /// </summary>
+        public ActionResult Editar(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return HttpNotFound();
+
+            var tareas = new List<TareaRegistrada>();
+            if (System.IO.File.Exists(rutaArchivo))
+            {
+                var contenido = System.IO.File.ReadAllText(rutaArchivo);
+                tareas = JsonConvert.DeserializeObject<List<TareaRegistrada>>(contenido) ?? new List<TareaRegistrada>();
+            }
+
+            var tarea = tareas.Find(t => t.Titulo == id);
+            if (tarea == null) return HttpNotFound();
+
+            return View(tarea);
+        }
+
+        /// <summary>
+        /// Procesa el formulario de edición.
+        /// Actualiza la tarea en el archivo JSON si la validación es exitosa.
+        /// Devuelve respuesta JSON para integración con Ajax.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult Editar(TareaRegistrada tareaEditada)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errores = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Json(new { exito = false, errores });
+            }
+
+            var tareas = new List<TareaRegistrada>();
+            if (System.IO.File.Exists(rutaArchivo))
+            {
+                var contenido = System.IO.File.ReadAllText(rutaArchivo);
+                tareas = JsonConvert.DeserializeObject<List<TareaRegistrada>>(contenido) ?? new List<TareaRegistrada>();
+            }
+
+            var index = tareas.FindIndex(t => t.Titulo == tareaEditada.Titulo);
+            if (index == -1)
+            {
+                return Json(new { exito = false, errores = new[] { "La tarea no fue encontrada." } });
+            }
+
+            tareas[index] = tareaEditada;
+
+            var jsonActualizado = JsonConvert.SerializeObject(tareas, Formatting.Indented);
+            System.IO.File.WriteAllText(rutaArchivo, jsonActualizado);
+
+            return Json(new { exito = true });
+        }
     }
 }

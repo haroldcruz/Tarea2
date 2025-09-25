@@ -1,0 +1,177 @@
+﻿@model tarea2.Models.TareaRegistrada
+
+@{
+    ViewBag.Title = "Editar tarea";
+}
+
+<h2>Editar tarea</h2>
+
+<!-- Mensaje institucional si la tarea fue actualizada correctamente (solo si se usa flujo tradicional) -->
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success" role="status" aria-live="polite">
+        @TempData["MensajeExito"]
+    </div>
+}
+
+<!-- Formulario accesible para editar una tarea existente -->
+@using (Html.BeginForm("Editar", "RegistroTareas", FormMethod.Post, new
+{
+    id = "formEditarTarea",
+    role = "form",
+    aria_label = "Formulario de edición de tarea"
+}))
+{
+    @Html.AntiForgeryToken()
+
+    <!-- Campo: Título (clave de identificación, no editable) -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Titulo, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.Titulo, new {
+            @class = "form-control",
+            aria_describedby = "errorTitulo",
+            @readonly = "readonly"
+        })
+        @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger", id = "errorTitulo", role = "alert" })
+    </div>
+
+    <!-- Campo: Descripción -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Descripcion, new { @class = "control-label" })
+        @Html.TextAreaFor(model => model.Descripcion, new {
+            @class = "form-control",
+            rows = 4,
+            aria_describedby = "errorDescripcion"
+        })
+        @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger", id = "errorDescripcion", role = "alert" })
+    </div>
+
+    <!-- Campo: Fecha de vencimiento -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.FechaVencimiento, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.FechaVencimiento, "{0:yyyy-MM-dd}", new {
+            @class = "form-control",
+            type = "date",
+            aria_describedby = "errorFecha"
+        })
+        @Html.ValidationMessageFor(model => model.FechaVencimiento, "", new { @class = "text-danger", id = "errorFecha", role = "alert" })
+    </div>
+
+    <!-- Campo: Prioridad -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Prioridad, new { @class = "control-label" })
+        @Html.DropDownListFor(model => model.Prioridad,
+            new SelectList(new[] { "Alta", "Media", "Baja" }, Model.Prioridad),
+            "-- Seleccione prioridad --",
+            new { @class = "form-control", aria_describedby = "errorPrioridad" })
+        @Html.ValidationMessageFor(model => model.Prioridad, "", new { @class = "text-danger", id = "errorPrioridad", role = "alert" })
+    </div>
+
+    <!-- Campo: Lenguaje -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Lenguaje, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.Lenguaje, new {
+            @class = "form-control",
+            aria_describedby = "errorLenguaje"
+        })
+        @Html.ValidationMessageFor(model => model.Lenguaje, "", new { @class = "text-danger", id = "errorLenguaje", role = "alert" })
+    </div>
+
+    <!-- Campo: Tipo -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Tipo, new { @class = "control-label" })
+        @Html.DropDownListFor(model => model.Tipo,
+            new SelectList(new[] { "Consola", "Web", "API", "Escritorio" }, Model.Tipo),
+            "-- Seleccione tipo de tarea --",
+            new { @class = "form-control", aria_describedby = "errorTipo" })
+        @Html.ValidationMessageFor(model => model.Tipo, "", new { @class = "text-danger", id = "errorTipo", role = "alert" })
+    </div>
+
+    <!-- Campo: URL del repositorio -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.UrlRepositorio, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.UrlRepositorio, new {
+            @class = "form-control",
+            aria_describedby = "errorUrl",
+            placeholder = "https://github.com/usuario/repositorio"
+        })
+        @Html.ValidationMessageFor(model => model.UrlRepositorio, "", new { @class = "text-danger", id = "errorUrl", role = "alert" })
+    </div>
+
+    <!-- Campo: Autor -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Autor, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.Autor, new {
+            @class = "form-control",
+            aria_describedby = "errorAutor"
+        })
+        @Html.ValidationMessageFor(model => model.Autor, "", new { @class = "text-danger", id = "errorAutor", role = "alert" })
+    </div>
+
+    <!-- Campo: Estado -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Estado, new { @class = "control-label" })
+        @Html.DropDownListFor(model => model.Estado,
+            new SelectList(new[] { "Pendiente", "Completada", "Cancelada" }, Model.Estado),
+            "-- Seleccione estado --",
+            new { @class = "form-control", aria_describedby = "errorEstado" })
+        @Html.ValidationMessageFor(model => model.Estado, "", new { @class = "text-danger", id = "errorEstado", role = "alert" })
+    </div>
+
+    <!-- Botón institucional para actualizar la tarea -->
+    <button type="submit" class="btn btn-primary" aria-label="Actualizar tarea">
+        Actualizar tarea
+    </button>
+}
+
+<!-- Carga de SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#formEditarTarea').submit(function (e) {
+                e.preventDefault();
+
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    success: function (respuesta) {
+                        if (respuesta.exito) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Tarea actualizada!',
+                                text: 'Los cambios fueron guardados correctamente.',
+                                confirmButtonText: 'Ir al listado'
+                            }).then(() => {
+                                window.location.href = '/RegistroTareas/Listado';
+                            });
+                        } else {
+                            let mensaje = respuesta.errores.join('\n');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error de validación',
+                                text: mensaje,
+                                confirmButtonText: 'Cerrar'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de servidor',
+                            text: 'No se pudo actualizar la tarea.',
+                            confirmButtonText: 'Cerrar'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

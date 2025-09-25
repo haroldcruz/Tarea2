@@ -1,0 +1,46 @@
+[
+  {
+    "Titulo": "NADA",
+    "Descripcion": "a AHDHASDHASD SAD DADA DDS",
+    "FechaVencimiento": "2025-09-11T00:00:00",
+    "Prioridad": "Alta",
+    "Lenguaje": "progra",
+    "Tipo": "Consola",
+    "UrlRepositorio": "https://copilot.microsoft.com/chats/iwy8CeF4VBwtK1M8Bz4uR",
+    "Autor": "ASD DASD SA",
+    "Estado": "Pendiente"
+  },
+  {
+    "Titulo": "NADA",
+    "Descripcion": "ADASDAS",
+    "FechaVencimiento": "2025-09-24T00:00:00",
+    "Prioridad": "Baja",
+    "Lenguaje": null,
+    "Tipo": null,
+    "UrlRepositorio": null,
+    "Autor": null,
+    "Estado": "Pendiente"
+  },
+  {
+    "Titulo": "NADA",
+    "Descripcion": "aaaa",
+    "FechaVencimiento": "2025-09-09T00:00:00",
+    "Prioridad": "Media",
+    "Lenguaje": "python",
+    "Tipo": "Escritorio",
+    "UrlRepositorio": null,
+    "Autor": "harold",
+    "Estado": "Pendiente"
+  },
+  {
+    "Titulo": "NADA",
+    "Descripcion": "ssas adasdasd aD DAS",
+    "FechaVencimiento": "2025-09-17T00:00:00",
+    "Prioridad": "Alta",
+    "Lenguaje": "puthon",
+    "Tipo": "Escritorio",
+    "UrlRepositorio": "https://copilot.microsoft.com/chats/iwy8CeF4VBwtK1M8Bz4uR",
+    "Autor": "ssss",
+    "Estado": "Pendiente"
+  }
+]

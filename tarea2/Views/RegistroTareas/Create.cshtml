@@ -1,49 +1,188 @@
 ﻿@model tarea2.Models.TareaRegistrada
 
 @{
-    ViewBag.Title = "Registrar nueva tarea";
+    // Título dinámico según si se está editando o creando
+    ViewBag.Title = Model?.Titulo == null ? "Registrar nueva tarea" : "Editar tarea";
+    var esEdicion = Model?.Titulo != null;
 }
+
+<h2>@ViewBag.Title</h2>
+
+<!-- Mensaje institucional si la operación fue exitosa -->
 @if (TempData["MensajeExito"] != null)
 {
-    <div class="alert alert-success" role="alert" aria-live="assertive">
+    <div class="alert alert-success" role="status" aria-live="polite">
         @TempData["MensajeExito"]
     </div>
 }
 
-<h2>Registrar nueva tarea</h2>
-
-<!-- Formulario principal con atributos accesibles -->
-@using (Html.BeginForm("Create", "RegistroTareas", FormMethod.Post, new { @id = "formRegistroTarea", @role = "form", @aria_label = "Formulario de registro de tareas" }))
+<!-- Formulario accesible para registrar o editar tareas -->
+@using (Html.BeginForm(esEdicion ? "Editar" : "Create", "RegistroTareas", FormMethod.Post, new
 {
+    @id = "formRegistroTarea",
+    @role = "form",
+    @aria_label = "Formulario de registro de tareas"
+}))
+{
+    @Html.AntiForgeryToken()
+
+    <!-- Campo: Título de la tarea -->
     <div class="form-group">
-        @Html.LabelFor(model => model.Titulo, htmlAttributes: new { @class = "control-label", @aria_label = "Título de la tarea" })
-        @Html.TextBoxFor(model => model.Titulo, new { @class = "form-control", @aria_required = "true", @aria_describedby = "ayudaTitulo" })
-        <small id="ayudaTitulo" class="form-text text-muted">Ingrese un título breve y descriptivo.</small>
-        @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger" })
+        @Html.LabelFor(model => model.Titulo, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.Titulo, new { @class = "form-control", aria_describedby = "errorTitulo" })
+        @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger", id = "errorTitulo", role = "alert" })
     </div>
 
+    <!-- Campo: Descripción detallada -->
     <div class="form-group">
-        @Html.LabelFor(model => model.Descripcion, htmlAttributes: new { @class = "control-label", @aria_label = "Descripción de la tarea" })
-        @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control", rows = 4, @aria_required = "true", @aria_describedby = "ayudaDescripcion" })
-        <small id="ayudaDescripcion" class="form-text text-muted">Describa los detalles de la tarea.</small>
-        @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger" })
+        @Html.LabelFor(model => model.Descripcion, new { @class = "control-label" })
+        @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control", rows = 4, aria_describedby = "errorDescripcion" })
+        @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger", id = "errorDescripcion", role = "alert" })
     </div>
 
+    <!-- Campo: Fecha de vencimiento -->
     <div class="form-group">
-        @Html.LabelFor(model => model.FechaVencimiento, htmlAttributes: new { @class = "control-label", @aria_label = "Fecha de vencimiento" })
-        @Html.TextBoxFor(model => model.FechaVencimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", @aria_required = "true" })
-        @Html.ValidationMessageFor(model => model.FechaVencimiento, "", new { @class = "text-danger" })
+        @Html.LabelFor(model => model.FechaVencimiento, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.FechaVencimiento, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", aria_describedby = "errorFecha" })
+        @Html.ValidationMessageFor(model => model.FechaVencimiento, "", new { @class = "text-danger", id = "errorFecha", role = "alert" })
     </div>
 
+    <!-- Campo: Prioridad -->
     <div class="form-group">
-        @Html.LabelFor(model => model.Prioridad, htmlAttributes: new { @class = "control-label", @aria_label = "Nivel de prioridad" })
-        @Html.DropDownListFor(model => model.Prioridad, new SelectList(new[] { "Alta", "Media", "Baja" }), "-- Seleccione prioridad --", new { @class = "form-control", @aria_required = "true" })
-        @Html.ValidationMessageFor(model => model.Prioridad, "", new { @class = "text-danger" })
+        @Html.LabelFor(model => model.Prioridad, new { @class = "control-label" })
+        @Html.DropDownListFor(model => model.Prioridad, new SelectList(new[] { "Alta", "Media", "Baja" }), "-- Seleccione prioridad --", new { @class = "form-control", aria_describedby = "errorPrioridad" })
+        @Html.ValidationMessageFor(model => model.Prioridad, "", new { @class = "text-danger", id = "errorPrioridad", role = "alert" })
     </div>
 
-    <!-- Botón de envío accesible -->
-    <button type="submit" class="btn btn-primary" aria-label="Guardar tarea">Guardar tarea</button>
+    <!-- Campo: Lenguaje de programación -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Lenguaje, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.Lenguaje, new { @class = "form-control", aria_describedby = "errorLenguaje" })
+        @Html.ValidationMessageFor(model => model.Lenguaje, "", new { @class = "text-danger", id = "errorLenguaje", role = "alert" })
+    </div>
+
+    <!-- Campo: Tipo de tarea -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Tipo, new { @class = "control-label" })
+        @Html.DropDownListFor(model => model.Tipo, new SelectList(new[] { "Consola", "Web", "API", "Escritorio" }), "-- Seleccione tipo de tarea --", new { @class = "form-control", aria_describedby = "errorTipo" })
+        @Html.ValidationMessageFor(model => model.Tipo, "", new { @class = "text-danger", id = "errorTipo", role = "alert" })
+    </div>
+
+    <!-- Campo: URL del repositorio -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.UrlRepositorio, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.UrlRepositorio, new {
+            @class = "form-control",
+            aria_describedby = "errorUrl",
+            placeholder = "https://github.com/usuario/repositorio"
+        })
+        @Html.ValidationMessageFor(model => model.UrlRepositorio, "", new { @class = "text-danger", id = "errorUrl", role = "alert" })
+    </div>
+
+    <!-- Campo: Autor de la tarea -->
+    <div class="form-group">
+        @Html.LabelFor(model => model.Autor, new { @class = "control-label" })
+        @Html.TextBoxFor(model => model.Autor, new { @class = "form-control", aria_describedby = "errorAutor" })
+        @Html.ValidationMessageFor(model => model.Autor, "", new { @class = "text-danger", id = "errorAutor", role = "alert" })
+    </div>
+
+    <!-- Botón institucional para guardar o actualizar -->
+    <button type="submit" class="btn btn-primary" aria-label="@((esEdicion ? "Actualizar" : "Guardar") + " tarea")">
+        @(esEdicion ? "Actualizar tarea" : "Guardar tarea")
+    </button>
 }
-@section scripts {
-    <script src="~/Scripts/registroTareas.js"></script>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Validación y envío del formulario por Ajax
+            $('#formRegistroTarea').submit(function (e) {
+                e.preventDefault();
+
+                // Captura de valores
+                var titulo = $('#Titulo').val().trim();
+                var descripcion = $('#Descripcion').val().trim();
+                var fecha = $('#FechaVencimiento').val().trim();
+                var prioridad = $('#Prioridad').val();
+                var lenguaje = $('#Lenguaje').val().trim();
+                var tipo = $('#Tipo').val();
+                var url = $('#UrlRepositorio').val().trim();
+                var autor = $('#Autor').val().trim();
+
+                // Validación de contenido mínimo
+                if (titulo.length < 3 || descripcion.length < 10 || lenguaje.length < 2 || autor.length < 3) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Datos insuficientes',
+                        text: 'Completá los campos con información más detallada.',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return;
+                }
+
+                // Validación de formato de URL
+                var urlValida = /^https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/.test(url);
+                if (!urlValida) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'URL inválida',
+                        text: 'Ingresá una URL válida que comience con http:// o https://',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return;
+                }
+
+                // Validación de campos obligatorios
+                if (fecha === '' || prioridad === '' || tipo === '') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Campos incompletos',
+                        text: 'Por favor completá todos los campos obligatorios antes de continuar.',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return;
+                }
+
+                // Token antifalsificación
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                // Envío por Ajax
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    success: function (respuesta) {
+                        if (respuesta.exito) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Operación exitosa!',
+                                text: esEdicion ? 'La tarea fue actualizada correctamente.' : 'La tarea se guardó correctamente.',
+                                confirmButtonText: 'Aceptar'
+                            });
+                            if (!esEdicion) $('#formRegistroTarea')[0].reset();
+                        } else {
+                            let mensaje = respuesta.errores.join('\n');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error de validación',
+                                text: mensaje,
+                                confirmButtonText: 'Cerrar'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un problema al procesar la tarea.',
+                            confirmButtonText: 'Cerrar'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 }

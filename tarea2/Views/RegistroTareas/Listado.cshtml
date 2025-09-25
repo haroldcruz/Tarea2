@@ -6,37 +6,106 @@
 
 <h2>Listado de tareas registradas</h2>
 
-<!-- Tabla accesible con encabezados semánticos -->
-<table class="table table-bordered table-striped" role="table" aria-label="Listado de tareas">
+<!-- Tabla institucional con encabezados accesibles -->
+<table class="table table-bordered table-striped"  aria-label="Listado de tareas registradas">
     <thead>
         <tr>
+            <!-- Encabezados semánticos para cada campo -->
             <th scope="col">Título</th>
             <th scope="col">Descripción</th>
             <th scope="col">Fecha de vencimiento</th>
             <th scope="col">Prioridad</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Lenguaje</th>
+            <th scope="col">Repositorio</th>
+            <th scope="col">Autor</th>
+            <th scope="col">Acciones</th>
             <th scope="col">Estado</th>
         </tr>
     </thead>
     <tbody>
-        @* Verificamos si hay tareas en el modelo *@
         @if (Model != null && Model.Any())
         {
             foreach (var tarea in Model)
             {
                 <tr>
-                    <td>@tarea.Titulo</td>
+                    <!-- Celda de título con scope para accesibilidad -->
+                    <td scope="row">@tarea.Titulo</td>
+
+                    <!-- Celdas de contenido técnico -->
                     <td>@tarea.Descripcion</td>
                     <td>@tarea.FechaVencimiento.ToString("dd/MM/yyyy")</td>
                     <td>@tarea.Prioridad</td>
-                    <td>@tarea.Estado</td>
+                    <td>@tarea.Tipo</td>
+                    <td>@tarea.Lenguaje</td>
+
+                    <!-- Celda con enlace al repositorio si está disponible -->
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(tarea.UrlRepositorio))
+                        {
+                            <a href="@tarea.UrlRepositorio"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               aria-label="Abrir repositorio de @tarea.Titulo">
+                                Ver repositorio
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No disponible</span>
+                        }
+                    </td>
+
+                    <!-- Celda con nombre del autor -->
+                    <td>@tarea.Autor</td>
+
+                    <!-- Celda de acciones: botón Editar solo si la tarea está pendiente -->
+                    <td>
+                        @if (tarea.Estado == "Pendiente")
+                        {
+                            <a href="@Url.Action("Editar", "RegistroTareas", new { id = tarea.Titulo })"
+                               class="btn btn-sm btn-info"
+                               aria-label="Editar tarea @tarea.Titulo">
+                                Editar
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No editable</span>
+                        }
+                    </td>
+
+                    <!-- Celda de estado con distintivo visual -->
+                    <td>
+                        @if (tarea.Estado == "Pendiente")
+                        {
+                            <span class="badge badge-warning" aria-label="Estado pendiente">Pendiente</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-success" aria-label="Estado completado">@tarea.Estado</span>
+                        }
+                    </td>
                 </tr>
             }
         }
         else
         {
+            <!-- Fila institucional si no hay tareas -->
             <tr>
-                <td colspan="5" class="text-center">No hay tareas registradas.</td>
+                <td colspan="10" class="text-center text-muted" role="alert" aria-live="polite">
+                    No hay tareas registradas.
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Botón institucional para volver al formulario de registro -->
+<div class="text-center">
+    <a href="@Url.Action("Create", "RegistroTareas")"
+       class="btn btn-default"
+       aria-label="Registrar nueva tarea">
+        Registrar nueva tarea
+    </a>
+</div>
